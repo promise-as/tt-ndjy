@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "ts-format-time": "/components/tsFormatTime"
+  }
+}

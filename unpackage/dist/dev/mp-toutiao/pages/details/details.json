@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "课程详情",
+  "usingComponents": {
+    "ts-format-time": "/components/tsFormatTime",
+    "u-parse": "/components/uParse/src/wxParse",
+    "num": "/components/num"
+  }
+}
