@@ -73,7 +73,8 @@
         "usingComponents" : true,
         "appid" : "tt08367e8b970c7af1",
         "setting" : {
-            "urlCheck" : false
+            "urlCheck" : false,
+            "es6" : true
         }
     },
     "uniStatistics" : {

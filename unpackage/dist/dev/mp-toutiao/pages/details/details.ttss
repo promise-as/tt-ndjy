@@ -365,15 +365,17 @@ page {
   position: absolute;
   top: 20rpx;
   right: 20rpx;
-  z-index: 200;
+  z-index: 300;
 }
 .close .uni-icon-clear:before {
   content: "\EA0F";
 }
 .popup-wrap {
-  position: absolute;
-  -webkit-transform: translate(-50%, 50%);
-          transform: translate(-50%, 50%);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin: -325rpx 0 0 -324rpx;
+  overflow: hidden;
   z-index: 200;
   width: 648rpx;
   height: 650rpx;

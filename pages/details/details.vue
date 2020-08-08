@@ -3,18 +3,18 @@
 		<!-- 表单 -->
 		<view class="popup" v-if="isShowPopup">
 			<view class="mask"></view>
-			<view class="uni-common-mt popup-wrap">
+			<view class="popup-wrap">
 				<view class="close" @tap="closePopup">
 					<icon type="clear" size="26" />
 				</view>
 				<view class="form-title">注册可免费获取全套课程</view>
 				<view class="form-subtitle">真人老师在线指导</view>
 				<view class="from">
-					<input class="uni-input" focus placeholder="您的姓名" v-model="username" />
+					<input class="uni-input" placeholder="您的姓名" v-model="username" />
 					<input class="uni-input" placeholder="手机号" maxlength="11" v-model="phone"/>
 					<view class="get-code">
 						<input class="uni-input authcode" placeholder="验证码" v-model="inputcode" />
-						<button class="btn" type="default" @tap="getCode">获取验证码</button>
+						<button class="btn" type="default" @tap="getCode" :disabled="authText=='获取验证码'?false:true">{{authText}}</button>
 					</view>
 					<button class="submit" @tap="getphonenumber">立即注册</button>
 				</view>
@@ -27,11 +27,11 @@
 			
 			<!-- 回放视频 -->
 			<view class="play">
-				<view class="play-mask" v-if="phone == ''" @tap.stop="playVideo"></view>
-				<video src="https://ugcsjy.qq.com/uwMROfz2r57EIaQXGdGnC2dePkZaz9nvINvy8qtBz-4opyj0/szg_2919_50001_0b6bcuaa4aaadeabtebnb5pvcfodbykqadsa.f622.mp4?sdtfrom=v1010&guid=d8b130f632b936b2a147d2b27aec3fb5&vkey=B5396B1F39909420B30C59C715F814C4ABE61C4DB966EF6492C538BE4AE31C5CEAB7DC76D7A5409199E7269C781E6EFE3943EE2CDC2624A080E478C2906CE29303496D9D0C1047EF5617064CDCF0EAB29E1F66695C660FF5E47C07A7AB54EF9EBEDC5D6ED617C5FE0C63ACD69D3775311091039236BB2C4C539A751D8AB298E2" controls></video>
-				<!-- <view>视频播放区域</view> -->
+				<view class="play-mask" v-if="noLogin" @tap="playVideo"></view>
+				<!-- 根据视频的id来切换到对应的视频 -->
+				<video src="https://ugcydzd.qq.com/uwMROfz2r5zAoaQXGdGnC2dfJ7xBbC6Xu5OsXbmLfLunH5lr/x09498tpo27.p712.1.mp4?sdtfrom=v1104&guid=55f5a3102cb5344ed3c5acb3580e54de&vkey=D6D06D44317C5D250E3221AF1189B726F224459E3B114E23B2049020A0A10150948EF20FB023D33015B005ACB68A7DD24E8BCF05CC172E878B529504EE3294EB365BB3088D11573991F9516035DF8A6916D464761EAA1DDCB0F99A18EF5B8A867863E5CB2F48B69DA0DBC5604EB0E8CEB4354CE956A1FD234711E71FB1197CA8" controls></video>
 			</view>
-			<!-- <view class="video-box"><txv-video :vid="vid" :autoplay="true" playerid="txv1"></txv-video></view> -->
+			
 			<view class="con bgw">
 				<view class="lesson">
 					<view class="tabs">
@@ -42,7 +42,7 @@
 						<view class="txt" v-if="tabId == 1"><uParse :content="detail.intro" /></view>
 						<view class="txt txt-2" v-if="tabId == 2">
 							<view v-for="(item, index) in detail.fj" :key="index">
-								<view class="list-box" @tap="goChapter(item.backurl, item.cid, item.token)">
+								<view class="list-box" @tap="goChapter(item.id)">
 									<view class="title">章节{{ index + 1 }}:{{ item.title }}</view>
 									<view class="flex btm">
 										<view class="time"><tsFormatTime :time="item.starttime"></tsFormatTime></view>
@@ -81,23 +81,27 @@
 			return {
 				state: '',
 				backurl: '', // 视频地址
+				// backurlArr: [],
 				btnTxt: '',
 				id: '',
 				detail: {},
 				// vid: '',
 				tabId: 1,
 				
+				noLogin: true,
 				isShowPopup: true,
 				username: '',
 				phone: '',
 				authcode: 1, // 后台发送的验证码
-				inputcode: '' // 用户输入验证码
+				inputcode: '', // 用户输入验证码
+				authText: '获取验证码',
+				timeId: null,
 			};
 		},
 		onLoad(options) {
 			this.state = options.state;
-			// this.state = 1;
 			this.id = options.id;
+			// this.state = 1;
 			// this.id = 2;
 			this.btnTxt = '播放视频';
 			this.getLive();
@@ -106,15 +110,20 @@
 			uni.getStorage({
 			    key: 'phone',
 			    success: (res) => {
+					console.log(res.data, 1234)
 					this.isShowPopup = false;
+					this.noLogin = false;
 			    }
 			});
 	
-			// uni.showShareMenu({
-			// 	withShareTicket: true
-			// });
+			uni.showShareMenu({
+				withShareTicket: true
+			});
 		},
 		methods: {
+			closePopup(){
+				this.isShowPopup = false;
+			},
 			// 获取验证码
 			getCode(){
 				let phone = this.phone;
@@ -129,16 +138,19 @@
 					if(res.data.msg == 'OK'){
 						this.authcode = res.data.data // 4为数字
 						uni.showToast({
-							title:'验证码已发送到您的手机，注意查收'
-						})
-					}else{
-						uni.showToast({
-							title:'验证码获取失败',
-							icon:'none'
+							title:'验证码已发'
 						})
 					}
 				})
-				
+				this.authText = 60;
+				this.timeId = setInterval(() => {
+					console.log('定时器')
+					this.authText = this.authText - 1;
+					if(this.authText == 0){
+						this.authText = '获取验证码'
+						clearInterval(this.timeId)
+					}
+				}, 1000)
 			},
 			getphonenumber(){
 				// console.log(this.username, this.phone, 123)
@@ -170,7 +182,11 @@
 					})
 					return null;
 				}
+				uni.showToast({
+					title:'注册成功'
+				})
 				this.isShowPopup = false;
+				this.noLogin = false;
 				// 存storage
 				uni.setStorage({
 					key: 'phone',
@@ -180,15 +196,13 @@
 					}
 				});
 			},
-			closePopup(){
-				this.isShowPopup = false;
-			},
 			playVideo(){
-				console.log('点击了播放按钮')
-				
+				// console.log('点击了播放按钮')
 				uni.getStorage({
 				    key: 'phone',
+					success: () => {},
 					fail: () => {
+						console.log('没注册')
 						this.isShowPopup = true;
 					}
 				});
@@ -210,6 +224,11 @@
 					}
 					this.detail = data;
 				});
+			},
+			// 目录下视频切换
+			goChapter(id){
+				console.log(id, '视频切换');
+				// this.id = id
 			}
 		}
 	};
@@ -338,20 +357,22 @@ page {
 	position: absolute;
 	top: 20rpx;
 	right: 20rpx;
-	z-index: 200;
+	z-index: 300;
 	.uni-icon-clear:before {
 	    content: "\EA0F";
 	}
 }
 .popup-wrap{
-	position: absolute;
-	transform: translate(-50%, 50%);
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	margin: -325rpx 0 0 -324rpx;
+	overflow: hidden;
 	z-index: 200;
 	width: 648rpx;
 	height: 650rpx;
 	padding: 30rpx;
 	background: #fff;
-	
 	.form-title{
 		font-size: 36rpx;
 		color: #101010;

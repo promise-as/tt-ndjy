@@ -70,9 +70,9 @@
 			this.nearLive();
 			this.getXnLive();
 			
-			// uni.showShareMenu({
-			// 	withShareTicket: true
-			// });
+			uni.showShareMenu({
+				withShareTicket: true
+			});
 		},
 		methods: {
 			getBanner() {
