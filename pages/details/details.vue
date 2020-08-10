@@ -23,13 +23,13 @@
 		
 		<!-- 回放界面 -->
 		<view class="back-con-box">
-			<view class="h1 one bgw">{{ detail.title }}</view>
+			<view class="h1 one bgw">{{ title }}</view>
 			
 			<!-- 回放视频 -->
 			<view class="play">
 				<view class="play-mask" v-if="noLogin" @tap="playVideo"></view>
 				<!-- 根据视频的id来切换到对应的视频 -->
-				<video src="https://ugcydzd.qq.com/uwMROfz2r5zAoaQXGdGnC2dfJ7xBbC6Xu5OsXbmLfLunH5lr/x09498tpo27.p712.1.mp4?sdtfrom=v1104&guid=55f5a3102cb5344ed3c5acb3580e54de&vkey=D6D06D44317C5D250E3221AF1189B726F224459E3B114E23B2049020A0A10150948EF20FB023D33015B005ACB68A7DD24E8BCF05CC172E878B529504EE3294EB365BB3088D11573991F9516035DF8A6916D464761EAA1DDCB0F99A18EF5B8A867863E5CB2F48B69DA0DBC5604EB0E8CEB4354CE956A1FD234711E71FB1197CA8" controls></video>
+				<video :src="backurl" controls></video>
 			</view>
 			
 			<view class="con bgw">
@@ -45,7 +45,7 @@
 								<view class="list-box" @tap="goChapter(item.id)">
 									<view class="title">章节{{ index + 1 }}:{{ item.title }}</view>
 									<view class="flex btm">
-										<view class="time"><tsFormatTime :time="item.starttime"></tsFormatTime></view>
+										<view class="time"><tsFormatTime :time="item.addtime"></tsFormatTime></view>
 										<view class="read flex">
 											<num />
 											次学习
@@ -80,19 +80,19 @@
 		data() {  
 			return {
 				state: '',
-				backurl: '', // 视频地址
-				// backurlArr: [],
-				btnTxt: '',
 				id: '',
+				backurl: '', // 视频地址
+				btnTxt: '',
+				
 				detail: {},
-				// vid: '',
+				title: '',
 				tabId: 1,
 				
 				noLogin: true,
 				isShowPopup: true,
 				username: '',
 				phone: '',
-				authcode: 1, // 后台发送的验证码
+				authcode: '', // 后台发送的验证码
 				inputcode: '', // 用户输入验证码
 				authText: '获取验证码',
 				timeId: null,
@@ -101,8 +101,6 @@
 		onLoad(options) {
 			this.state = options.state;
 			this.id = options.id;
-			// this.state = 1;
-			// this.id = 2;
 			this.btnTxt = '播放视频';
 			this.getLive();
 			
@@ -110,7 +108,6 @@
 			uni.getStorage({
 			    key: 'phone',
 			    success: (res) => {
-					console.log(res.data, 1234)
 					this.isShowPopup = false;
 					this.noLogin = false;
 			    }
@@ -121,6 +118,34 @@
 			});
 		},
 		methods: {
+			getLive() {
+				// 2.获取直播详情
+				var data = {
+					id: this.id
+				};
+				util.http(this.url + '/liveDyInfoId', data, res => {
+					// console.log(res, 111)
+					var data = res.data.data;
+					if (data.backurl.length > 0) {
+						this.title = data.title;
+						this.backurl = data.backurl;
+					}
+					this.detail = data;
+				});
+			},
+			// 目录下视频切换
+			goChapter(id){
+				var detail = this.detail;
+				var fj = detail.fj;
+				// console.log(fj, key, 111)
+				Object.keys(fj).forEach((key) => {
+					if(id == key){
+						this.title = fj[key].title;
+						this.backurl = fj[key].backurl;
+					}
+				})
+			},
+			
 			closePopup(){
 				this.isShowPopup = false;
 			},
@@ -192,7 +217,7 @@
 					key: 'phone',
 					data: md5('THEA2020.$' + this.phone),
 					success: (res) => {
-						console.log(res, 111)
+						// console.log(res, 111)
 					}
 				});
 			},
@@ -211,25 +236,6 @@
 			onTabSwitch(index) {
 				this.tabId = index;
 			},
-			getLive() {
-				// 2.获取直播详情
-				var data = {
-					id: this.id,
-					token: md5('THEA2020.$' + this.id)
-				};
-				util.http(this.url + '/liveDyInfoId', data, res => {
-					var data = res.data.data;
-					if (data.backurl.length > 0) {
-						var str = data.backurl;
-					}
-					this.detail = data;
-				});
-			},
-			// 目录下视频切换
-			goChapter(id){
-				console.log(id, '视频切换');
-				// this.id = id
-			}
 		}
 	};
 </script>

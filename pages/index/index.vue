@@ -19,7 +19,7 @@
 					<image :src="item.pic" mode="scaleToFill"></image>
 					<view class="txt">
 						<view class="h3 one">{{ item.title }}</view>
-						<view class="time"><tsFormatTime :time="item.starttime"></tsFormatTime></view>
+						<view class="time"><tsFormatTime :time="item.addtime"></tsFormatTime></view>
 						<view class="btn">进入课堂</view>
 					</view>
 				</swiper-item>
@@ -36,7 +36,7 @@
 					<image :src="item.pic" mode="scaleToFill"></image>
 					<view class="txt">
 						<view class="h3 line2">{{ item.title }}</view>
-						<view class="time"><tsFormatTime :time="item.starttime"></tsFormatTime></view>
+						<view class="time"><tsFormatTime :time="item.addtime"></tsFormatTime></view>
 						<view class="btn">进入课堂</view>
 					</view>
 				</view>
@@ -118,7 +118,7 @@
 					// console.log(res, 111)
 					if (res.data.msg == 'OK') {
 						var liveList = res.data.data;
-						// liveList = this.setState(liveList);
+						liveList = this.setState(liveList);
 						if (loadMore) {
 							var oldArr = this.liveList,
 								newArr = oldArr.concat(liveList);
